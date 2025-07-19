@@ -1,0 +1,55 @@
+1. Create 2 folders (1 for front and 1 for back)
+2. Set up backend (Express)
+    > run npm init -y to create an empty package.json file so you can install dependencies
+    > packages: npm install express mongoose cors dotenv
+        - express : web framework
+        - mongoose : mongodb ORM
+        - cors : Allow connection from frontend to API
+        - dotenv : .env (environment var for db connection also andetc...)
+3. Set up frontend 
+    > npx-react-app appname
+
+TO RUN BOTH
+run for backend: node server.js
+run for frontend: npm start / run dev
+
+OPTIONAL
+Install npm install --save-dev nodemon to automatically refresh server every changes on backend
+add 
+"scripts": {
+  "start": "node server.js",
+  "dev": "nodemon server.js"
+} on backend package .json
+and run with npx nodemon server.js
+
+
+NODE NOTES:
+require is like import 
+✅ When to use module.exports:
+
+When exporting one thing (object, class, function, router, model).
+
+✅ When to use exports:
+
+When exporting multiple named functions (typical for controllers).
+
+To use classic keyword "import require ....." to import files just add "type": "module" in package.json 
+
+2 types of imports:
+1. Common JS style (Classic node js import)
+const var = require('');
+module.exports = var
+
+2. ES Module style 
+import name from '';
+
+
+
+JWT AUTH
+1. The jwt token itself is stateless 
+  > stateless means that the server does not keep track of any of user's session or login status between requests
+2. The jwt token has 3 parts : header,payload,signature
+  > header is token type (either bearer etc)
+  > payload is the data (user object in my case)
+  > signature that the token has not been tampered with
+3. To ensure that the token is not yet expireed/not tampered, create middleware to ensure it 

@@ -1,0 +1,14 @@
+# Global ignores
+**/node_modules/
+**/.env
+**/dist/
+**/build/
+**/coverage/
+**/logs/
+**/tmp/
+
+# npm debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
