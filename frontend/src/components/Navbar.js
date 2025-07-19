@@ -84,9 +84,6 @@ function Navbar() {
                     <div>
                         <Link to={{pathname: "/about"}}>About</Link>
                     </div>
-                    {/* <div>
-                        <p onClick={test} className="cursor-pointer">Test</p>
-                    </div> */}
                     {user
                     ? (
                         <div className="flex items-center gap-4">
