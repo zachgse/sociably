@@ -1,3 +1,20 @@
+:root {
+    --primary-color: #8BD6C8;
+    --primary-color-dark: #60918C;
+}
+
 .color-primary{
-    color:#8BD6C8;
+    color: var(--primary-color);
+}
+
+.btn-primary{
+    background-color: var(--primary-color);
+}
+
+.btn-primary-dark{
+    background-color: var(--primary-color-dark);
+}
+
+.text-2xs {
+    font-size: 10px;
 }
