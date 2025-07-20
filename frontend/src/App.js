@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import "./css/style.css";
-//layout
+//utils
 import Layout from "./components/Layout";
+import RequireAuth from './utils/RequireAuth';
+import RequireGuest from './utils/RequireGuest';
 //pages
 import Home from "./pages/Home";
 import About from "./pages/About";
+import Login from "./pages/Login";
 
 function App() {
 
@@ -12,10 +15,20 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Layout/>}>
+          <Route path="/" element={
+              <RequireAuth>
+                <Layout/>
+              </RequireAuth>
+            }>
             <Route index element={<Home/>}/>
             <Route path="about" element={<About/>}/>
           </Route>
+          {/*  */}
+          <Route path="login" element={
+            <RequireGuest>
+              <Login/>
+            </RequireGuest>
+          }/>
         </Routes>
       </BrowserRouter>
     </>

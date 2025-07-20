@@ -5,9 +5,7 @@ function Layout() {
     return (
         <>
             <Navbar/>
-            <p>Shared layout!</p>
-
-            <main>
+            <main className="max-w-[1300px] w-full mx-auto px-12">
                 <Outlet/>
             </main>
         </>
