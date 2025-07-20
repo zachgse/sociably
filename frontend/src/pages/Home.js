@@ -16,18 +16,6 @@ function Home() {
     // ispostloading state
     const [isModalOpen,setIsModalOpen] = useState(false);
 
-    // useEffect(() => {
-    //     const fetchPostsData = async() => {
-    //         await fetchAllPosts();
-    //     }    
-
-    //     fetchPostsData();
-    // },[]);
-
-    // useEffect(() => {
-    //     console.log("posts data: ", posts);
-    // },[posts])
-
     const toggleModal = ({type}) => {
         switch(type){
             case 'post':
@@ -58,15 +46,16 @@ function Home() {
         }
     }
 
-    // async function fetchAllPosts(){
-    //     try {
-    //         const response = await api.get('/post');
-    //         setPosts(response.data.data);
-    //     } catch (error){
-    //         console.error(error);
-    //     }
-    // }
-    
+    const likePost = async({postId}) => {
+        try {
+            console.log("post id: ", postId);
+            const response = await api.put(`/post/${postId}`,{},{withCredentials:true});
+            console.log("reponse: ", response);
+        } catch (error){
+            console.error(error);
+        }
+    }
+
     return (
         <>  
             {/* ADD MODAL HERE BOTH FOR POST AND COMMENT */}
@@ -164,7 +153,8 @@ function Home() {
                                         <span className="text-2xs">{postItem?.number_of_likes}</span>
                                     </div>
                                     <div className="flex items-center justify-around border-t border-gray-300">
-                                        <div className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
+                                        <div onClick={() => likePost({postId: postItem?.id})} 
+                                            className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
                                             Like
                                         </div>
                                         <div className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
