@@ -3,8 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import { connectDB } from './src/config/db.js';
+// Routes
 import testRoutes from './src/routes/testRoute.js';
 import authRoutes from './src/routes/authRoute.js';
+import postRoutes from './src/routes/postRoute.js';
 
 dotenv.config();
 
@@ -32,5 +34,6 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/test', testRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/post', postRoutes);
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
