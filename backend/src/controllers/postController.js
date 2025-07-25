@@ -39,7 +39,9 @@ export async function viewPost(req,res){
 
     if (!post) return res.status(404).json({msg:"Post not found"});
 
-    return res.status(200).json({data:post});
+    const postResource = await post.toResource();
+
+    return res.status(200).json({data:postResource});
 }
 
 export async function likePost(req,res){

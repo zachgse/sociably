@@ -31,17 +31,17 @@ const commentSchema = new mongoose.Schema(
     { timestamps:true }
 );
 
-const Comment = mongoose.model("Comment",commentSchema);
-
 commentSchema.methods.toResource = async function() {
     const user = await User.findById(this.user_id);
     return {
         id: this._id,
-        posted_by: user?.name,
+        user: user?.name,
+        user_picture: user?.picture,
         comment: this.content,
         number_of_likes: this.likes.length,
         posted_at: this.createdAt
     }
 }
 
+const Comment = mongoose.model("Comment",commentSchema);
 export default Comment;

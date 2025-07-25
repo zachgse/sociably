@@ -1,4 +1,4 @@
-import { useContext,useState,useEffect,Suspense,useMemo } from "react";
+import { useContext,useState,useEffect,Suspense } from "react";
 import AuthContext from "../utils/AuthContext";
 import { FaImages } from "react-icons/fa"; 
 import { FaLocationDot,FaRegComment } from "react-icons/fa6";
@@ -8,20 +8,22 @@ import { AiFillLike,AiOutlineLike } from "react-icons/ai";
 import moment from "moment";
 import api from "../api/api";
 import { fetchPostsResource } from "../resources/PostResource";
-import { fetchCommentsAndPostResource } from "../resources/CommentResource";
 
 function Home() {
     const [user] = useContext(AuthContext);
     const posts = fetchPostsResource.read();
-    const [postInput,setPostInput] = useState(null);
     // ispostloading state
+
+    //for modal
     const [action,setAction] = useState(null);
     const [isModalOpen,setIsModalOpen] = useState(false);
-    // const [comments,setComments] = 
-    
+    const [postInput,setPostInput] = useState(null);
+
     // for comments
     const [postId,setpostId] = useState(null);
-    const comments = useMemo(() => fetchCommentsAndPostResource(postId), [postId]);
+    const [postObject,setPostObject] = useState(null);
+    const [comments,setComments] = useState([]);
+    const [commentInput,setCommentInput] = useState(null);
 
     const toggleModal = ({type}) => {
         switch(type){
@@ -76,9 +78,18 @@ function Home() {
 
     const likePost = async({postId}) => {
         try {
-            console.log("post id: ", postId);
             const response = await api.put(`/post/${postId}`,{},{withCredentials:true});
-            console.log("reponse: ", response);
+        } catch (error){
+            console.error(error);
+        }
+    }
+
+    const createComment = async(e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            formData.append('content',commentInput);
+            const response = await api.post(`/comment/${postId}`, formData, {withCredentials:true});
         } catch (error){
             console.error(error);
         }
@@ -118,6 +129,31 @@ function Home() {
 
     }
 
+    useEffect(() => {
+        if (postId) {
+            const fetchPost = async () => {
+                try {
+                    const response = await api.get(`/post/${postId}`);
+                    setPostObject(response.data.data);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            const fetchComments = async () => {
+                try {
+                    const response = await api.get(`/comment/${postId}`);
+                    setComments(response.data.data);
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+
+            fetchPost();
+            fetchComments();
+        }
+    }, [postId]);
+
     return (
         <>  
             {isModalOpen && (
@@ -142,12 +178,12 @@ function Home() {
                                 {action == 'comment' ? 
                                     <>
                                         <div className="flex gap-2">
-                                            <img src="" alt="User Profile picture"
-                                                        className="w-8 h-8 rounded-full"/>
+                                            <img src={postObject?.profile_picture} alt="User Profile picture"
+                                                        className="w-12 h-12 rounded-full"/>
                                             <div className="flex flex-col">
-                                                <p>Posted by name</p>
+                                                <p className="font-bold">{postObject?.posted_by}</p>
                                                 <p className="text-2xs text-gray-500">
-                                                    Date ago
+                                                    {moment.utc(postObject?.posted_at).local().fromNow()}
                                                 </p>
                                             </div>
                                         </div>
@@ -156,7 +192,7 @@ function Home() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <AiFillLike className="text-blue-500 w-4 h-4"/> 
-                                            <span className="text-2xs">xx</span>
+                                            <span className="text-2xs">{postObject?.number_of_likes}</span>
                                         </div>
                                         <div className="flex items-center justify-around border-t border-b  border-gray-300">
                                             <div 
@@ -170,13 +206,28 @@ function Home() {
                                                 <span><FaRegComment className="w-4 h-4"/> </span> Comment
                                             </div>
                                         </div> 
-                                        {comments > 0 ? 
-                                        comments.map((comment) => {
-                                            <div key={comment?.id}>{comment}</div>
-                                        })
-                                        : <>
-                                        <p className="text-center text-gray-500">No comments yet.</p>
-                                        </>
+                                        {
+                                        Array.isArray(comments) && comments.length > 0 ?  
+                                            comments.map((comment) => {
+                                                return (
+                                                    <div key={comment?.id} 
+                                                        className="flex gap-3">
+                                                        <img src={comment?.user_picture} className="w-10 h-10 rounded-full"/>
+                                                        <div className="flex flex-col">
+                                                            <div className="border border-gray-300 flex flex-col p-2 rounded-lg">
+                                                                <p className="text-xs font-bold">{comment?.user}</p>
+                                                                <p className="text-xs">{comment?.comment}</p>
+                                                            </div>
+                                                            <div className="flex items-center gap-4 px-2">
+                                                                <p className="text-xs text-gray-500">{moment.utc(comment?.posted_at).local().fromNow()}</p>
+                                                                <p className="text-xs text-gray-500 cursor-pointer">Like</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }) : (
+                                                <p className="text-center text-gray-500">No comments yet.</p>
+                                            )
                                         }
                                     </>
                                     :
@@ -192,16 +243,20 @@ function Home() {
                             {action == 'comment' 
                                 ? 
                                 <div className="flex gap-2">
-                                    <img src="" alt="User Profile picture"
+                                    <img src={user?.picture} alt="User Profile picture"
                                         className="w-8 h-8 rounded-full"/>
                                     <div className="relative w-full">
-                                        <textarea  
-                                            className="border border-gray-300 rounded-lg w-full h-24 text-sm p-2" rows="10">
-                                            Comment as ...
-                                        </textarea>
-                                        <div className="absolute bottom-4 right-2">
-                                            <IoSend className="text-gray-500 cursor-pointer"/>
-                                        </div>
+                                        <form onSubmit={createComment}>
+                                            <textarea value={commentInput} onChange={(e) => setCommentInput(e.target.value)}
+                                                className="border border-gray-300 rounded-lg w-full h-24 text-sm p-2" rows="10">
+                                                Comment ...
+                                            </textarea>
+                                            <div className="absolute bottom-4 right-2">
+                                                <button type="submit">
+                                                    <IoSend className="text-gray-500 cursor-pointer"/>
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                                 :
