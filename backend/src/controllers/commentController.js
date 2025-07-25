@@ -1,0 +1,37 @@
+import Comment from "../models/Comment.js";
+import Post from "../models/Post.js";
+import { getUserFromToken } from "../utils/utils.js";
+
+export async function showCommentsFromPost(req,res,id){
+    const post_id = req.params.id;
+
+    const post = await Post.findById({_id:post_id});
+
+    if (!post){
+        return res.status(404).json({msg:"Post not found"});
+    }
+
+    const comments = Comment.find(post_id); //returns all
+    const commentsResource = await Promise.all(
+        comments.map(comment => comment.toResource())
+    );
+
+    return res.status(200).json({data:commentsResource});    
+}
+
+export async function createComment(req,res){
+    const user = getUserFromToken(req);
+
+    if (!user){
+        return res.status(401).json({msg:"Unauthorized"});
+    }
+
+    const { content } = req.body;
+
+    const comment = new Comment({
+        user_id: user?.id,
+        content
+    });
+
+    return res.status(200).json({msg:"Comment created"});
+}
