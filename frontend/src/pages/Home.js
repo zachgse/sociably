@@ -1,4 +1,4 @@
-import { useContext,useState,useEffect,Suspense } from "react";
+import { useContext,useState,useEffect,Suspense,useMemo } from "react";
 import AuthContext from "../utils/AuthContext";
 import { FaImages } from "react-icons/fa"; 
 import { FaLocationDot,FaRegComment } from "react-icons/fa6";
@@ -8,6 +8,7 @@ import { AiFillLike,AiOutlineLike } from "react-icons/ai";
 import moment from "moment";
 import api from "../api/api";
 import { fetchPostsResource } from "../resources/PostResource";
+import { fetchCommentsAndPostResource } from "../resources/CommentResource";
 
 function Home() {
     const [user] = useContext(AuthContext);
@@ -16,6 +17,11 @@ function Home() {
     // ispostloading state
     const [action,setAction] = useState(null);
     const [isModalOpen,setIsModalOpen] = useState(false);
+    // const [comments,setComments] = 
+    
+    // for comments
+    const [postId,setpostId] = useState(null);
+    const comments = useMemo(() => fetchCommentsAndPostResource(postId), [postId]);
 
     const toggleModal = ({type}) => {
         switch(type){
@@ -45,6 +51,10 @@ function Home() {
                 setAction(null);
                 break;
         }
+    }
+
+    const openPost = ({id}) => {
+        setpostId(id);
     }
 
     const handlePostValue = (e) => {
@@ -160,6 +170,14 @@ function Home() {
                                                 <span><FaRegComment className="w-4 h-4"/> </span> Comment
                                             </div>
                                         </div> 
+                                        {comments > 0 ? 
+                                        comments.map((comment) => {
+                                            <div key={comment?.id}>{comment}</div>
+                                        })
+                                        : <>
+                                        <p className="text-center text-gray-500">No comments yet.</p>
+                                        </>
+                                        }
                                     </>
                                     :
                                     <>
@@ -272,7 +290,10 @@ function Home() {
                                             className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
                                             Like
                                         </div>
-                                        <div onClick={() => toggleModal({type:'comment'})}
+                                        <div onClick={() => {
+                                            toggleModal({type:'comment'});
+                                            openPost({id:postItem?.id})
+                                        }} 
                                             className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
                                             Comment
                                         </div>
