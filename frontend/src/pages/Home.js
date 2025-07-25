@@ -23,6 +23,18 @@ function Home() {
                 setIsModalOpen(true);
                 setAction('post');
                 break;
+            case 'photo':
+                setIsModalOpen(true);
+                setAction('photo');
+                break;
+            case 'location':
+                setIsModalOpen(true);
+                setAction('location');
+                break;
+            case 'feeling':
+                setIsModalOpen(true);
+                setAction('feeling');
+                break;
             case 'comment':
                 setIsModalOpen(true);
                 setAction('comment');
@@ -60,6 +72,40 @@ function Home() {
         } catch (error){
             console.error(error);
         }
+    }
+
+    function CreatePostModalDisplay({action}){
+        if (action == 'post' || action == 'photo'){
+            return (
+                <>
+                    <textarea value={postInput} onChange={handlePostValue}
+                        className="w-full border border-gray-300 p-2" rows="14">
+                        What's on your mind
+                    </textarea>
+                    <div className="flex flex-1 items-center justify-center gap-1">
+                        <FaImages className="h-6 w-6 text-green-500"/>
+                        <p className="text-xs">Add Photo</p>
+                    </div>
+                </>
+            );
+        } else if (action == 'location') {
+            return (
+                <div className="flex items-center gap-4">
+                    <div className="text-lg flex-1 w-full text-center">User is at</div>
+                    <input type="text" className="border border-gray-300 w-4/5 h-8 rounded-full"/>
+                </div>
+            );
+        } else if (action == 'feeling') {
+            return (
+                <div className="flex items-center gap-4">
+                    <div className="text-lg flex-1 w-full text-center">User is feeling</div>
+                    <input type="text" className="border border-gray-300 w-3/5 h-8 rounded-full"/>
+                </div>
+            );
+        } else {
+            return <div>Error.</div>;
+        }
+
     }
 
     return (
@@ -117,14 +163,7 @@ function Home() {
                                     </>
                                     :
                                     <>
-                                        <textarea value={postInput} onChange={handlePostValue}
-                                            className="w-full border border-gray-300 p-2" rows="14">
-                                            What's on your mind
-                                        </textarea>
-                                        <div className="flex flex-1 items-center justify-center gap-1">
-                                            <FaImages className="h-6 w-6 text-green-500"/>
-                                            <p className="text-xs">Add Photo</p>
-                                        </div>
+                                        <CreatePostModalDisplay action={action}/>
                                     </>
                                 }
                             </div>
@@ -184,15 +223,18 @@ function Home() {
                         </div>          
                         <hr className="border-gray-300"/>
                         <div className="flex items-center gap-4 justify-center">
-                            <div className="flex items-center gap-1 justify-center">
+                            <div onClick={() => toggleModal({type:'location'})} 
+                                className="flex items-center gap-1 justify-center cursor-pointer">
                                 <FaLocationDot className="h-6 w-6 text-red-500"/>
                                 <p className="text-xs">Location</p>
                             </div>
-                            <div className="flex items-center gap-1 justify-center">
+                            <div onClick={() => toggleModal({type:'photo'})}
+                                className="flex items-center gap-1 justify-center cursor-pointer">
                                 <FaImages className="h-6 w-6 text-green-500"/>
                                 <p className="text-xs">Photo</p>
                             </div>
-                            <div className="flex items-center gap-1 justify-center">
+                            <div onClick={() => toggleModal({type:'feeling'})}
+                                className="flex items-center gap-1 justify-center cursor-pointer">
                                 <MdEmojiEmotions className="h-6 w-6 text-yellow-500"/>
                                 <p className="text-xs">Feeling</p>
                             </div>
