@@ -19,7 +19,7 @@ function Home() {
     const [action,setAction] = useState(null);
     const [isModalOpen,setIsModalOpen] = useState(false);
     const [postInput,setPostInput] = useState(null);
-    const [IsPostLoading,setIsPostLoading] = useState(true);
+    const [IsPostLoading,setIsPostLoading] = useState(false);
 
     // for comments
     const [postId,setpostId] = useState(null);
@@ -27,7 +27,7 @@ function Home() {
     const [comments,setComments] = useState([]);
     const [commentInput,setCommentInput] = useState(null);
 
-    useEffect(() => {
+    useEffect(() => { //fetching posts initially
         const fetchPosts = async() => {
             try {
                 const response = await api.get('/post');
@@ -39,7 +39,7 @@ function Home() {
         fetchPosts();
     }, [])
 
-    useEffect(() => {
+    useEffect(() => { //fetching posts via websocket
         const handleFetchPosts = (data) => {
             // ... IS SPREAD OPERATOR all the existing/past data
             // then the data is the new one
@@ -52,6 +52,31 @@ function Home() {
             socket.off('fetch_posts', handleFetchPosts); // 🔥 cleanup
         };
     }, []);
+
+    useEffect(() => { //assigns post id/object associated with comments
+        if (postId) {
+            const fetchPost = async () => {
+                try {
+                    const response = await api.get(`/post/${postId}`);
+                    setPostObject(response.data.data);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            const fetchComments = async () => {
+                try {
+                    const response = await api.get(`/comment/${postId}`);
+                    setComments(response.data.data);
+                } catch (error) {
+                    console.error(error);
+                }
+            };
+
+            fetchPost();
+            fetchComments();
+        }
+    }, [postId]);
 
     const toggleModal = ({type}) => {
         switch(type){
@@ -79,6 +104,11 @@ function Home() {
             default:
                 setIsModalOpen(false);
                 setAction(null);
+                setPostInput(null);
+                setpostId(null);
+                setPostObject(null);
+                setComments([]);
+                setCommentInput(null);
                 break;
         }
     }
@@ -87,27 +117,32 @@ function Home() {
         setpostId(id);
     }
 
-    const handlePostValue = (e) => {
-        setPostInput(e.target.value);
+    const createPost = async (e) => {
+        e.preventDefault();
+
+        setIsPostLoading(true);
+
+        setPostInput(null);
+
+        setTimeout(async () => {
+            try {
+                const formData = new FormData();
+                formData.append("description", postInput);
+
+                const response = await api.post("/post/create", formData, {
+                    withCredentials: true,
+                });
+
+                socket.emit('create_post', response.data.data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsPostLoading(false);
+                setIsModalOpen(false);
+            }
+        }, 2000);
     }
 
-    const createPost = async(e) => {
-        e.preventDefault();
-        try{
-            const formData = new FormData();
-            formData.append("description",postInput);
-            const response = await api.post("/post/create",formData,{
-                withCredentials:true
-            });
-            socket.emit('create_post', 
-                response.data.data
-            );
-        } catch (error){
-            console.error(error);
-        } finally {
-            setPostInput(null);
-        }
-    }
 
     const likePost = async({postId}) => {
         try {
@@ -128,7 +163,7 @@ function Home() {
         }
     }
 
-    function CreatePostModalDisplay({action}){
+    function CreatePostModalDisplay({action}){ //refactor
         if (action == 'post' || action == 'photo'){
             return (
                 <>
@@ -136,8 +171,8 @@ function Home() {
                         className="w-full border border-gray-300 p-2" rows="14">
                         What's on your mind
                     </textarea> */}
-                    <input value={postInput} onChange={handlePostValue}
-                        className="w-full border border-gray-300 p-2"/>
+                    {/* <input value={postInput} onChange={handlePostValue}
+                        className="w-full border border-gray-300 p-2"/> */}
                     <div className="flex flex-1 items-center justify-center gap-1">
                         <FaImages className="h-6 w-6 text-green-500"/>
                         <p className="text-xs">Add Photo</p>
@@ -164,47 +199,24 @@ function Home() {
 
     }
 
-    useEffect(() => {
-        if (postId) {
-            const fetchPost = async () => {
-                try {
-                    const response = await api.get(`/post/${postId}`);
-                    setPostObject(response.data.data);
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-
-            const fetchComments = async () => {
-                try {
-                    const response = await api.get(`/comment/${postId}`);
-                    setComments(response.data.data);
-                } catch (error) {
-                    console.error(error);
-                }
-            };
-
-            fetchPost();
-            fetchComments();
-        }
-    }, [postId]);
-
     return (
         <>  
             {IsPostLoading && (
-                <div className="fixed inset-0 bg-black opacity-70 z-50 flex items-center justify-center">
+                <div className="fixed inset-0 bg-black opacity-70 z-50 flex flex-col items-center justify-center">
                     <div className="loading">
-                    <svg viewBox="25 25 50 50" width="50" height="50">
-                        <circle cx="50" cy="50" r="20" />
-                    </svg>
+                        <svg viewBox="25 25 50 50" width="50" height="50">
+                            <circle cx="50" cy="50" r="20" />
+                        </svg>
+                        
                     </div>
+                    <p className="text-white text-lg">Posting</p>
                 </div>
             )}
 
             {isModalOpen && (
             <>
-                <div className="fixed inset-0 bg-black opacity-70 z-40"></div>
-                <div className="fixed inset-0 flex justify-center items-center z-50">
+                <div className="fixed inset-0 bg-black opacity-70 z-30"></div>
+                <div className="fixed inset-0 flex justify-center items-center z-40">
                     <div className="bg-white md:w-2/5 w-11/12 h-5/6 p-6 rounded-lg shadow-lg flex flex-col gap-4 relative">
                         {/* CARD HEADER */}
                         <div className="sticky top-0 bg-white z-10 flex justify-between items-center pb-2">
@@ -235,10 +247,12 @@ function Home() {
                                         <div className="border border-gray-300 rounded-lg w-full h-auto p-4">
                                             Test
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <AiFillLike className="text-blue-500 w-4 h-4"/> 
-                                            <span className="text-2xs">{postObject?.number_of_likes}</span>
-                                        </div>
+                                        {postObject?.number_of_likes ? (
+                                            <div className="flex items-center gap-2">
+                                                <AiFillLike className="text-blue-500 w-4 h-4"/> 
+                                                <span className="text-2xs">{postObject?.number_of_likes}</span>
+                                            </div>
+                                        ) : ""}
                                         <div className="flex items-center justify-around border-t border-b  border-gray-300">
                                             <div 
                                                 className="flex items-center justify-center gap-2 w-full h-full 
@@ -278,7 +292,7 @@ function Home() {
                                     :
                                     <>
                                         {/* <CreatePostModalDisplay action={action}/> */}
-                                         <textarea value={postInput} onChange={handlePostValue}
+                                         <textarea value={postInput} onChange={(e)=>setPostInput(e.target.value)}
                                             className="w-full border border-gray-300 p-2" rows="14">
                                             What's on your mind
                                         </textarea>
@@ -372,24 +386,26 @@ function Home() {
                     {/* LIST OF POSTS */}
                     <div className="mt-4">
                         <Suspense fallback={<p>Loading posts...</p>}>
-                            {posts.map((postItem) => (
+                            {posts.length > 0 ? posts.map((postItem) => (
                                 <div key={postItem?.id}
                                     className="border border-gray-300 rounded-lg flex flex-col gap-4 my-4">
                                     <div className="flex items-center gap-4 px-4 mt-4">
                                         <img src={postItem?.profile_picture} alt="User Profile picture"
                                             className="w-16 h-16 rounded-full"/>
                                         <div className="flex flex-col">
-                                            <p>{postItem?.posted_by}</p>
-                                            <p className="text-2xs text-gray-500">
+                                            <p className="font-semi-bold">{postItem?.posted_by}</p>
+                                            <p className="text-xs text-gray-500">
                                                 {moment.utc(postItem?.posted_at).local().fromNow()}
                                             </p>
                                         </div>
                                     </div>
                                     <p className="flex-1 px-4">{postItem?.description}</p>
-                                    <div className="flex items-center gap-2 px-4  mt-4">
-                                        <AiFillLike className="text-blue-500 w-4 h-4"/> 
-                                        <span className="text-2xs">{postItem?.number_of_likes}</span>
-                                    </div>
+                                    {postItem?.number_of_likes ? (
+                                        <div className="flex items-center gap-2 px-4 mt-4">
+                                            <AiFillLike className="text-blue-500 w-4 h-4"/> 
+                                            <span className="text-2xs">{postItem?.number_of_likes}</span>
+                                        </div>
+                                    ) : ""}
                                     <div className="flex items-center justify-around border-t border-gray-300">
                                         <div onClick={() => likePost({postId: postItem?.id})} 
                                             className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
@@ -404,7 +420,11 @@ function Home() {
                                         </div>
                                     </div>  
                                 </div>
-                            ))}
+                            )) : 
+                                <>
+                                    <p className="text-gray-500 text-center mt-24">No posts available yet.</p>
+                                </>
+                            }
                         </Suspense>
                     </div>                 
                 </div>
