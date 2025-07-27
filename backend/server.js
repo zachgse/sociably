@@ -40,9 +40,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('like_post', (data) => {
-    console.log('POST LIKED');
     io.emit('fetch_single_post',data);
   })
+
+  socket.on('create_comment', (data) => {
+    io.emit('fetch_comments',data);
+  });
 });
 
 app.use(express.json());

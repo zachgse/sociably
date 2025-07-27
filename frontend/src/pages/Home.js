@@ -100,6 +100,18 @@ function Home() {
         }
     }, [postId]);
 
+    useEffect(() => {
+        const handleFetchComments = (data) => {
+            setComments((prevComments) => [data,...prevComments]);
+        }
+
+        socket.on('fetch_comments',handleFetchComments);
+
+        return () => {
+            socket.off('fetch_comments',handleFetchComments);
+        }
+    }, [postId]);
+
     const toggleModal = ({type}) => {
         switch(type){
             case 'post':
@@ -175,11 +187,13 @@ function Home() {
     }
 
     const createComment = async(e) => {
+        setCommentInput(null);
         e.preventDefault();
         try {
             const formData = new FormData();
             formData.append('content',commentInput);
             const response = await api.post(`/comment/${postId}`, formData, {withCredentials:true});
+            socket.emit('create_comment',response.data.data);
         } catch (error){
             console.error(error);
         }

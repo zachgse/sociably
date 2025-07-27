@@ -45,5 +45,7 @@ export async function createComment(req,res,id){
 
     await comment.save();
 
-    return res.status(200).json({msg:"Comment created"});
+    const commentResource = await comment.toResource();
+
+    return res.status(200).json({msg:"Comment created",data:commentResource});
 }
