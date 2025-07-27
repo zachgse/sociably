@@ -1,7 +1,11 @@
+// Packages
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import http from "http";
+import { Server } from 'socket.io';
+// Config files
 import { connectDB } from './src/config/db.js';
 // Routes
 import testRoutes from './src/routes/testRoute.js';
@@ -19,6 +23,23 @@ app.use(cors({
   origin: 'http://localhost:3000',
   credentials:true
 }));
+const server = http.createServer(app);
+const io = new Server(server,{
+  cors: {
+    origin: 'http://localhost:3000',
+    credentials:true,
+    methods: ["GET","POST"]
+  }
+})
+
+io.on('connection', (socket) => {
+  console.log("A user connected: " + socket.id);
+
+  socket.on('create_post', (data) => {
+    io.emit('fetch_posts', data);
+  });
+});
+
 app.use(express.json());
 
 // To get cookie via request
@@ -38,4 +59,4 @@ app.use('/api/auth', authRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

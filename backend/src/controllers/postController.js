@@ -6,7 +6,7 @@ dotenv.config();
 
 export async function getAllPost(req,res){
     try {
-        const posts = await Post.find();
+        const posts = await Post.find().sort({createdAt: 'desc'}).exec();
         const postResource = await Promise.all(
             posts.map(post => post.toResource())
         );
@@ -31,7 +31,9 @@ export async function createPost(req,res){
     
     await post.save();
 
-    return res.status(200).json({message:"New post has been posted!"});
+    const postResource = await post.toResource();
+
+    return res.status(200).json({message:"New post has been posted!",data:postResource});
 }
 
 export async function viewPost(req,res){

@@ -7,23 +7,51 @@ import { IoClose,IoSend } from "react-icons/io5";
 import { AiFillLike,AiOutlineLike } from "react-icons/ai";
 import moment from "moment";
 import api from "../api/api";
-import { fetchPostsResource } from "../resources/PostResource";
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:5000');
 
 function Home() {
     const [user] = useContext(AuthContext);
-    const posts = fetchPostsResource.read();
-    // ispostloading state
+    const [posts,setPosts] = useState([]);
 
     //for modal
     const [action,setAction] = useState(null);
     const [isModalOpen,setIsModalOpen] = useState(false);
     const [postInput,setPostInput] = useState(null);
+    const [IsPostLoading,setIsPostLoading] = useState(true);
 
     // for comments
     const [postId,setpostId] = useState(null);
     const [postObject,setPostObject] = useState(null);
     const [comments,setComments] = useState([]);
     const [commentInput,setCommentInput] = useState(null);
+
+    useEffect(() => {
+        const fetchPosts = async() => {
+            try {
+                const response = await api.get('/post');
+                setPosts(response.data.data);
+            } catch (error){
+                console.error(error);
+            }
+        }
+        fetchPosts();
+    }, [])
+
+    useEffect(() => {
+        const handleFetchPosts = (data) => {
+            // ... IS SPREAD OPERATOR all the existing/past data
+            // then the data is the new one
+            setPosts((prev) => [data,...prev]);
+        };
+
+        socket.on('fetch_posts', handleFetchPosts);
+
+        return () => {
+            socket.off('fetch_posts', handleFetchPosts); // 🔥 cleanup
+        };
+    }, []);
 
     const toggleModal = ({type}) => {
         switch(type){
@@ -71,8 +99,13 @@ function Home() {
             const response = await api.post("/post/create",formData,{
                 withCredentials:true
             });
+            socket.emit('create_post', 
+                response.data.data
+            );
         } catch (error){
             console.error(error);
+        } finally {
+            setPostInput(null);
         }
     }
 
@@ -99,10 +132,12 @@ function Home() {
         if (action == 'post' || action == 'photo'){
             return (
                 <>
-                    <textarea value={postInput} onChange={handlePostValue}
+                    {/* <textarea value={postInput} onChange={handlePostValue}
                         className="w-full border border-gray-300 p-2" rows="14">
                         What's on your mind
-                    </textarea>
+                    </textarea> */}
+                    <input value={postInput} onChange={handlePostValue}
+                        className="w-full border border-gray-300 p-2"/>
                     <div className="flex flex-1 items-center justify-center gap-1">
                         <FaImages className="h-6 w-6 text-green-500"/>
                         <p className="text-xs">Add Photo</p>
@@ -156,6 +191,16 @@ function Home() {
 
     return (
         <>  
+            {IsPostLoading && (
+                <div className="fixed inset-0 bg-black opacity-70 z-50 flex items-center justify-center">
+                    <div className="loading">
+                    <svg viewBox="25 25 50 50" width="50" height="50">
+                        <circle cx="50" cy="50" r="20" />
+                    </svg>
+                    </div>
+                </div>
+            )}
+
             {isModalOpen && (
             <>
                 <div className="fixed inset-0 bg-black opacity-70 z-40"></div>
@@ -232,7 +277,17 @@ function Home() {
                                     </>
                                     :
                                     <>
-                                        <CreatePostModalDisplay action={action}/>
+                                        {/* <CreatePostModalDisplay action={action}/> */}
+                                         <textarea value={postInput} onChange={handlePostValue}
+                                            className="w-full border border-gray-300 p-2" rows="14">
+                                            What's on your mind
+                                        </textarea>
+                                        {/* <input value={postInput} onChange={handlePostValue}
+                                            className="w-full border border-gray-300 p-2"/> */}
+                                        <div className="flex flex-1 items-center justify-center gap-1">
+                                            <FaImages className="h-6 w-6 text-green-500"/>
+                                            <p className="text-xs">Add Photo</p>
+                                        </div>
                                     </>
                                 }
                             </div>
@@ -312,11 +367,6 @@ function Home() {
                                 <p className="text-xs">Feeling</p>
                             </div>
                         </div>
-                        
-                        
-                        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-                        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-                        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
                     </div>   
 
                     {/* LIST OF POSTS */}
@@ -324,7 +374,7 @@ function Home() {
                         <Suspense fallback={<p>Loading posts...</p>}>
                             {posts.map((postItem) => (
                                 <div key={postItem?.id}
-                                    className="border border-gray-300 rounded-lg flex flex-col gap-4">
+                                    className="border border-gray-300 rounded-lg flex flex-col gap-4 my-4">
                                     <div className="flex items-center gap-4 px-4 mt-4">
                                         <img src={postItem?.profile_picture} alt="User Profile picture"
                                             className="w-16 h-16 rounded-full"/>
