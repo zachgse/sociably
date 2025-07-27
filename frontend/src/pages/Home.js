@@ -53,6 +53,28 @@ function Home() {
         };
     }, []);
 
+    useEffect(() => {
+        const handleLikePost = (data) => {
+            setPosts((prevPosts) => {
+                console.log("Data: ", data.id);
+                const index = prevPosts.findIndex((p) => p.id === data?.id); //post index
+                console.log("index: ", index);
+                console.log("DATA: ", data);
+                if (index === -1) return prevPosts;
+
+                const updated = [...prevPosts]; //inherits all the data from prevPosts
+                updated[index] = data; //re-assigns data from updated to the indexed one
+                return updated; //return the updated list 
+            });
+        }
+
+        socket.on('fetch_single_post',handleLikePost);
+
+        return () => {
+            socket.off('fetch_single_post',handleLikePost);
+        }
+    }, []);
+
     useEffect(() => { //assigns post id/object associated with comments
         if (postId) {
             const fetchPost = async () => {
@@ -143,10 +165,10 @@ function Home() {
         }, 2000);
     }
 
-
     const likePost = async({postId}) => {
         try {
             const response = await api.put(`/post/${postId}`,{},{withCredentials:true});
+            socket.emit('like_post',response.data.data);
         } catch (error){
             console.error(error);
         }
@@ -197,6 +219,14 @@ function Home() {
             return <div>Error.</div>;
         }
 
+    }
+
+    function IsUserLiked({likes}){
+        if (likes.length > 0){
+            const isLiked = likes.findIndex((like) => like.user_id === user?.id);
+            return isLiked === -1 ? 'Like' : 'Unlike';
+        }
+        return 'Like';
     }
 
     return (
@@ -401,7 +431,7 @@ function Home() {
                                     </div>
                                     <p className="flex-1 px-4">{postItem?.description}</p>
                                     {postItem?.number_of_likes ? (
-                                        <div className="flex items-center gap-2 px-4 mt-4">
+                                        <div className="flex items-center gap-2 px-">
                                             <AiFillLike className="text-blue-500 w-4 h-4"/> 
                                             <span className="text-2xs">{postItem?.number_of_likes}</span>
                                         </div>
@@ -409,7 +439,7 @@ function Home() {
                                     <div className="flex items-center justify-around border-t border-gray-300">
                                         <div onClick={() => likePost({postId: postItem?.id})} 
                                             className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
-                                            Like
+                                            <IsUserLiked likes={postItem?.likes}/>
                                         </div>
                                         <div onClick={() => {
                                             toggleModal({type:'comment'});

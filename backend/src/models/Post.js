@@ -37,6 +37,7 @@ postSchema.methods.toResource = async function() {
         posted_by: user?.name,
         profile_picture: user?.picture,
         description: this.description,
+        likes: this.likes,
         number_of_likes: this.likes.length,
         posted_at: this.createdAt
         // add number of comments

@@ -38,6 +38,11 @@ io.on('connection', (socket) => {
   socket.on('create_post', (data) => {
     io.emit('fetch_posts', data);
   });
+
+  socket.on('like_post', (data) => {
+    console.log('POST LIKED');
+    io.emit('fetch_single_post',data);
+  })
 });
 
 app.use(express.json());

@@ -80,6 +80,7 @@ export async function checkAuth (req,res){
 
         return res.json({
             user: {
+                id : user._id,
                 name: user.name,
                 email: user.email,
                 picture: user.picture

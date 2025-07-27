@@ -74,9 +74,9 @@ export async function likePost(req,res){
         message = "Post has been liked";
     }
 
-    // add websocket
-
     await post.save();
 
-    return res.status(200).json({msg:message});
+    const postResource = await post.toResource();
+
+    return res.status(200).json({msg:message,data:postResource});
 }
