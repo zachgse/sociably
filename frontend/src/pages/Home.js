@@ -61,6 +61,10 @@ function Home() {
 
                 const updated = [...prevPosts]; //inherits all the data from prevPosts
                 updated[index] = data; //re-assigns data from updated to the indexed one
+
+                if (postId){
+                    setPostObject(data);
+                }
                 return updated; //return the updated list 
             });
         }
@@ -70,7 +74,7 @@ function Home() {
         return () => {
             socket.off('fetch_single_post',handleLikePost);
         }
-    }, []);
+    }, [postId]);
 
     useEffect(() => { //assigns post id/object associated with comments
         if (postId) {
@@ -99,7 +103,7 @@ function Home() {
 
     useEffect(() => { //fetching new comments via websocket
         const handleFetchComments = (data) => {
-            setComments((prevComments) => [data,...prevComments]);
+            setComments((prevComments) => [...prevComments,data]);
         }
 
         socket.on('fetch_comments',handleFetchComments);
@@ -260,12 +264,28 @@ function Home() {
 
     }
 
-    function IsUserLiked({likes}){
-        if (likes.length > 0){
+    function IsUserLiked({ likes }) {
+        if (Array.isArray(likes) && likes.length > 0) {
             const isLiked = likes.findIndex((like) => like.user_id === user?.id);
-            return isLiked === -1 ? 'Like' : 'Unlike';
+            return isLiked === -1 ? (
+                <>
+                    <AiOutlineLike className="w-4 h-4"/>
+                    Like 
+                </>
+            ) : (
+                <>
+                    <AiFillLike className="w-4 h-4 text-blue-500"/>
+                    Unlike 
+                </>
+            );
         }
-        return 'Like';
+
+        return (
+            <>
+                <AiOutlineLike className="w-4 h-4"/>
+                Like 
+            </>
+        );
     }
 
     return (
@@ -314,7 +334,7 @@ function Home() {
                                             </div>
                                         </div>
                                         <div className="border border-gray-300 rounded-lg w-full h-auto p-4">
-                                            Test
+                                            {postObject?.description}
                                         </div>
                                         {postObject?.number_of_likes ? (
                                             <div className="flex items-center gap-2">
@@ -323,10 +343,10 @@ function Home() {
                                             </div>
                                         ) : ""}
                                         <div className="flex items-center justify-around border-t border-b  border-gray-300">
-                                            <div
+                                            <div onClick={() => likePost({postId:postObject?.id})}
                                                 className="flex items-center justify-center gap-2 w-full h-full 
                                                     hover:bg-gray-100 text-center cursor-pointer text-xs text-gray-500 p-4">
-                                                <span><AiOutlineLike className="w-4 h-4"/> </span> Like
+                                                <IsUserLiked likes={postObject?.likes}/>
                                             </div>
                                             <div 
                                                 className="flex items-center justify-center gap-2 w-full h-full 
@@ -346,9 +366,12 @@ function Home() {
                                                                 <p className="text-xs font-bold">{comment?.user}</p>
                                                                 <p className="text-xs">{comment?.comment}</p>
                                                             </div>
-                                                            <div className="flex items-center gap-4 px-2">
-                                                                <p className="text-xs text-gray-500">{moment.utc(comment?.posted_at).local().fromNow()}</p>
-                                                                <p onClick={() => {likeComment({commentId:comment?.id})}}
+                                                            <div className="flex items-center gap-4 px-2 text-xs text-gray-500">
+                                                                <p className="">{moment.utc(comment?.posted_at).local().fromNow()}</p>
+                                                                {/*  */}
+                                                                <p className="me-auto">Like</p>
+                                                                <div className="flex items-center gap-1">1<AiFillLike className="text-blue-500"/></div>
+                                                                {/* <p onClick={() => {likeComment({commentId:comment?.id})}}
                                                                     className="text-xs text-gray-500 cursor-pointer me-auto">
                                                                         <IsUserLiked likes={comment?.likes}/>
                                                                 </p>
@@ -359,7 +382,8 @@ function Home() {
                                                                         </p>
                                                                         <AiFillLike className="text-blue-500 w-4 h-4"/> 
                                                                     </div> : ""
-                                                                }                                                                
+                                                                }    */}
+                                                                {/*  */}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -481,21 +505,23 @@ function Home() {
                                     </div>
                                     <p className="flex-1 px-4">{postItem?.description}</p>
                                     {postItem?.number_of_likes ? (
-                                        <div className="flex items-center gap-2 px-">
+                                        <div className="flex items-center gap-2 px-4">
                                             <AiFillLike className="text-blue-500 w-4 h-4"/> 
                                             <span className="text-2xs">{postItem?.number_of_likes}</span>
                                         </div>
                                     ) : ""}
                                     <div className="flex items-center justify-around border-t border-gray-300">
                                         <div onClick={() => likePost({postId: postItem?.id})} 
-                                            className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
+                                            className="flex items-center justify-center gap-2 w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
+                                            {/* <AiOutlineLike className="w-4 h-4"/>    */}
                                             <IsUserLiked likes={postItem?.likes}/>
                                         </div>
                                         <div onClick={() => {
                                             toggleModal({type:'comment'});
                                             openPost({id:postItem?.id})
                                         }} 
-                                            className="w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
+                                            className="flex items-center justify-center gap-2 w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
+                                            <FaRegComment className="w-4 h-4"/>
                                             Comment
                                         </div>
                                     </div>  
