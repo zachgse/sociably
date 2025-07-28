@@ -38,6 +38,7 @@ commentSchema.methods.toResource = async function() {
         user: user?.name,
         user_picture: user?.picture,
         comment: this.content,
+        likes: this.likes,
         number_of_likes: this.likes.length,
         posted_at: this.createdAt
     }

@@ -46,6 +46,10 @@ io.on('connection', (socket) => {
   socket.on('create_comment', (data) => {
     io.emit('fetch_comments',data);
   });
+
+  socket.on('like_comment', (data) => {
+    io.emit('fetch_single_comment',data);
+  });
 });
 
 app.use(express.json());

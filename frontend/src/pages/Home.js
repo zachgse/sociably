@@ -39,7 +39,7 @@ function Home() {
         fetchPosts();
     }, [])
 
-    useEffect(() => { //fetching posts via websocket
+    useEffect(() => { //fetching new posts via websocket
         const handleFetchPosts = (data) => {
             // ... IS SPREAD OPERATOR all the existing/past data
             // then the data is the new one
@@ -53,13 +53,10 @@ function Home() {
         };
     }, []);
 
-    useEffect(() => {
+    useEffect(() => { //fetching likes on posts via websocket
         const handleLikePost = (data) => {
             setPosts((prevPosts) => {
-                console.log("Data: ", data.id);
                 const index = prevPosts.findIndex((p) => p.id === data?.id); //post index
-                console.log("index: ", index);
-                console.log("DATA: ", data);
                 if (index === -1) return prevPosts;
 
                 const updated = [...prevPosts]; //inherits all the data from prevPosts
@@ -100,7 +97,7 @@ function Home() {
         }
     }, [postId]);
 
-    useEffect(() => {
+    useEffect(() => { //fetching new comments via websocket
         const handleFetchComments = (data) => {
             setComments((prevComments) => [data,...prevComments]);
         }
@@ -110,7 +107,26 @@ function Home() {
         return () => {
             socket.off('fetch_comments',handleFetchComments);
         }
-    }, [postId]);
+    }, []);
+
+    useEffect(() => {
+        const handleLikeComment = (data) => {
+            setComments((prevComments) => {
+                const index = prevComments.findIndex((p) => p.id === data.id);
+                if (index === -1) return prevComments;
+
+                const updated = [...prevComments];
+                updated[index] = data;
+                return updated;
+            });
+        }
+
+        socket.on('fetch_single_comment',handleLikeComment);
+
+        return () => {
+            socket.off('fetch_single_comment',handleLikeComment);
+        }
+    }, []);
 
     const toggleModal = ({type}) => {
         switch(type){
@@ -195,6 +211,15 @@ function Home() {
             const response = await api.post(`/comment/${postId}`, formData, {withCredentials:true});
             socket.emit('create_comment',response.data.data);
         } catch (error){
+            console.error(error);
+        }
+    }
+
+    const likeComment = async({commentId}) => {
+        try {
+            const response = await api.post(`comment/like/${commentId}`, {withCredentials:true});
+            socket.emit('like_comment',response.data.data);
+        } catch (error){    
             console.error(error);
         }
     }
@@ -298,7 +323,7 @@ function Home() {
                                             </div>
                                         ) : ""}
                                         <div className="flex items-center justify-around border-t border-b  border-gray-300">
-                                            <div 
+                                            <div
                                                 className="flex items-center justify-center gap-2 w-full h-full 
                                                     hover:bg-gray-100 text-center cursor-pointer text-xs text-gray-500 p-4">
                                                 <span><AiOutlineLike className="w-4 h-4"/> </span> Like
@@ -323,7 +348,18 @@ function Home() {
                                                             </div>
                                                             <div className="flex items-center gap-4 px-2">
                                                                 <p className="text-xs text-gray-500">{moment.utc(comment?.posted_at).local().fromNow()}</p>
-                                                                <p className="text-xs text-gray-500 cursor-pointer">Like</p>
+                                                                <p onClick={() => {likeComment({commentId:comment?.id})}}
+                                                                    className="text-xs text-gray-500 cursor-pointer me-auto">
+                                                                        <IsUserLiked likes={comment?.likes}/>
+                                                                </p>
+                                                                {comment?.number_of_likes ?
+                                                                    <div className="flex items-center gap-1">
+                                                                        <p className="text-xs text-gray-500">
+                                                                            {comment?.number_of_likes}
+                                                                        </p>
+                                                                        <AiFillLike className="text-blue-500 w-4 h-4"/> 
+                                                                    </div> : ""
+                                                                }                                                                
                                                             </div>
                                                         </div>
                                                     </div>

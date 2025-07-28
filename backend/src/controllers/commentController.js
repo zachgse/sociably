@@ -49,3 +49,37 @@ export async function createComment(req,res,id){
 
     return res.status(200).json({msg:"Comment created",data:commentResource});
 }
+
+export async function likeComment(req,res,id){
+    const user = getUserFromToken(req);
+    const comment_id = req.params.id;
+
+    const comment = await Comment.findById({_id:comment_id});
+
+    if (!comment){
+        return res.status(404).json({msg:"Comment not found"});
+    }
+
+    try {
+        const isExist = await Comment.findOne({
+            _id : comment_id,
+            'likes.user_id' : user?.id
+        });
+        const action = isExist ? 'unliked' : 'liked';
+
+        if (isExist){
+            comment.likes = comment.likes.filter(like => !like.user_id.equals(user.id));
+        } else {
+            comment.likes.push({
+                user_id:user?.id
+            });
+        }
+
+        await comment.save();
+
+        const commentResource = await comment.toResource();
+        res.status(200).json({msg:`Comment has been ${action}.`,data:commentResource});
+    } catch (error){
+        console.log(error);
+    }
+}
