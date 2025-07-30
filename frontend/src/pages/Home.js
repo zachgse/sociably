@@ -1,6 +1,5 @@
 import { useContext,useState } from "react";
 //Icons
-import { FaImages } from "react-icons/fa"; 
 import { IoClose } from "react-icons/io5";
 //Utils
 import api from "../utils/api";
@@ -10,6 +9,7 @@ import ModalContext from "../utils/ModalContext";
 import Sidebar from "../components/Sidebar";
 //Posts Components
 import PostCreate from "../features/posts/PostCreate";
+import PostModalCreate from "../features/posts/PostModalCreate";
 import PostList from "../features/posts/PostList"; 
 import PostItem from "../features/posts/PostItem"; 
 import PostLoading from "../features/posts/PostLoading"; 
@@ -29,13 +29,11 @@ function Home() {
 
         setIsPostLoading(true);
 
-        setPostInput(null);
-
         setTimeout(async () => {
             try {
                 const formData = new FormData();
                 formData.append("description", postInput);
-
+                formData.append("type",action);
                 const response = await api.post("/post/create", formData, {
                     withCredentials: true,
                 });
@@ -46,6 +44,7 @@ function Home() {
             } finally {
                 setIsPostLoading(false);
                 setIsModalOpen(false);
+                setPostInput(null);
             }
         }, 2000);
     }
@@ -67,7 +66,10 @@ function Home() {
                                 {action == 'comment' ? 'View post' : 'Create post'}
                             </p> 
                             <IoClose className="text-gray-500 w-4 h-4 cursor-pointer" 
-                                onClick={() => toggleModal({ type: 'close' })}/>
+                                onClick={() => {
+                                    setPostInput(null);
+                                    toggleModal({ type: 'close' })}
+                                }/>
                         </div>
 
                         <hr className="border-gray-300" />
@@ -82,18 +84,9 @@ function Home() {
                                     </>
                                     :
                                     <>
-                                        {/* this is default BUT TRY TO REFACTOR WITH CREATEPOSTMODALDISPLAY*/}
-                                        {/* <CreatePostModalDisplay action={action}/> */}
-                                         <textarea value={postInput} onChange={(e)=>setPostInput(e.target.value)}
-                                            className="w-full border border-gray-300 p-2" rows="14">
-                                            What's on your mind
-                                        </textarea>
-                                        {/* <input value={postInput} onChange={handlePostValue}
-                                            className="w-full border border-gray-300 p-2"/> */}
-                                        <div className="flex flex-1 items-center justify-center gap-1">
-                                            <FaImages className="h-6 w-6 text-green-500"/>
-                                            <p className="text-xs">Add Photo</p>
-                                        </div>
+                                        <PostModalCreate 
+                                            postInput={postInput}
+                                            setPostInput={setPostInput}/>
                                     </>
                                 }
                             </div>

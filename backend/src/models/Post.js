@@ -10,9 +10,16 @@ const postSchema = new mongoose.Schema(
             ref: 'User',
             required: true
         },
+        type: {
+            type: String,
+            required: true
+        },
         description: {
             type: String,
             required: true
+        },
+        image: {
+            type: String,
         },
         likes: [
             {
@@ -37,6 +44,7 @@ postSchema.methods.toResource = async function() {
         id: this._id,
         posted_by: user?.name,
         profile_picture: user?.picture,
+        type: this.type,
         description: this.description,
         likes: this.likes,
         number_of_likes: this.likes.length,

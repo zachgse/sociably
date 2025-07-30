@@ -48,15 +48,24 @@ export default function PostItem({post,type}){
                     <img src={post?.profile_picture} alt="User Profile picture"
                                 className="w-12 h-12 rounded-full"/>
                     <div className="flex flex-col">
-                        <p className="font-bold">{post?.posted_by}</p>
+                        <p className="flex gap-1 font-semi-bold">
+                            {post?.posted_by}  
+                            {['feeling', 'location'].includes(post.type) 
+                                ? (post.type == 'feeling' ? ' is feeling ' : ' is at ') 
+                                + post?.description 
+                                : ''
+                            }
+                        </p> 
                         <p className="text-2xs text-gray-500">
                             {moment.utc(post?.posted_at).local().fromNow()}
                         </p>
                     </div>
                 </div>
+                {['post','photo'].includes(post.type) ? 
                 <div className="border border-gray-300 rounded-lg w-full h-auto p-4">
                     {post?.description}
                 </div>
+                : ''}
                 <div className="flex justify-between px-4 text-xs text-gray-500 px-4">
                     {post?.number_of_likes ? (
                         <div className="flex items-center gap-2">
@@ -87,18 +96,30 @@ export default function PostItem({post,type}){
     } else {
         return (
             <div key={post?.id}
-                className="border border-gray-300 rounded-lg flex flex-col gap-4 my-4">
+                onClick={() => {
+                    setPostObject(post)
+                    toggleModal({type:'comment'});
+                }} 
+                className="border border-gray-300 rounded-lg flex flex-col gap-4 my-4 cursor-pointer">
                 <div className="flex items-center gap-4 px-4 mt-4">
                     <img src={post?.profile_picture} alt="User Profile picture"
                         className="w-16 h-16 rounded-full"/>
                     <div className="flex flex-col">
-                        <p className="font-semi-bold">{post?.posted_by}</p>
+                        <p className="flex gap-1 font-semi-bold">
+                            {post?.posted_by}  
+                            {['feeling', 'location'].includes(post.type) 
+                                ? (post.type == 'feeling' ? ' is feeling ' : ' is at ') 
+                                + post?.description 
+                                : ''
+                            }
+                        </p> 
                         <p className="text-xs text-gray-500">
                             {moment.utc(post?.posted_at).local().fromNow()}
                         </p>
                     </div>
                 </div>
-                <p className="flex-1 px-4">{post?.description}</p>
+                {['post','photo'].includes(post.type) 
+                    ? <p className="flex-1 px-4">{post?.description}</p> : ''}
                 <div className="flex justify-between px-4 text-xs text-gray-500 px-4">
                     {post?.number_of_likes ? (
                         <div className="flex items-center gap-2">

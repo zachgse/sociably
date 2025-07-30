@@ -65,6 +65,12 @@ app.get('/', (req, res) => {
   res.send('API Running');
 });
 
+app.get('/api/emojis', async (req, res) => {
+  const response = await fetch(process.env.EMOJI_API);
+  const data = await response.json();
+  res.status(200).json({msg:'List of feeling', data:data.slice(0,20)});
+});
+
 // Routes
 app.use('/api/test', testRoutes);
 app.use('/api/auth', authRoutes);

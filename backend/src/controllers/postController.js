@@ -22,11 +22,12 @@ export async function createPost(req,res){
 
     if (!user) return res.status(401).json({message:"Unauthorized"});
 
-    const {description} = req.body;
+    const {description,type} = req.body;
 
     const post = new Post({
         user_id: user.id,
-        description
+        description,
+        type
     })
     
     await post.save();
