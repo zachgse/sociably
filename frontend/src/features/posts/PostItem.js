@@ -99,10 +99,6 @@ export default function PostItem({post,type}){
     } else {
         return (
             <div key={post?.id}
-                onClick={() => {
-                    setPostObject(post)
-                    toggleModal({type:'comment'});
-                }} 
                 className="border border-gray-300 rounded-lg flex flex-col gap-4 my-4 cursor-pointer">
                 <div className="flex items-center gap-4 px-4 mt-4">
                     <img src={post?.profile_picture} alt="User Profile picture"
