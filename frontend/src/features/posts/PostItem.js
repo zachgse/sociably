@@ -6,7 +6,6 @@ import { usePostLike } from "../../hooks/postHooks";
 import AuthContext from "../../utils/AuthContext";
 import ModalContext from "../../utils/ModalContext";
 
-
 export default function PostItem({post,type}){
     const [user] = useContext(AuthContext);
     const {toggleModal,setPostObject} = useContext(ModalContext);
@@ -58,12 +57,17 @@ export default function PostItem({post,type}){
                 <div className="border border-gray-300 rounded-lg w-full h-auto p-4">
                     {post?.description}
                 </div>
-                {post?.number_of_likes ? (
-                    <div className="flex items-center gap-2">
-                        <AiFillLike className="text-blue-500 w-4 h-4"/> 
-                        <span className="text-2xs">{post?.number_of_likes}</span>
+                <div className="flex justify-between px-4 text-xs text-gray-500 px-4">
+                    {post?.number_of_likes ? (
+                        <div className="flex items-center gap-2">
+                            <AiFillLike className="text-blue-500 w-4 h-4"/> 
+                            <span className="text-2xs">{post?.number_of_likes}</span>
+                        </div>
+                    ) : ""}
+                    <div className="ml-auto">
+                        xx comments
                     </div>
-                ) : ""}
+                </div>
                 <div className="flex items-center justify-around border-t border-b  border-gray-300">
                     <div onClick={handleLikePost}
                         className="flex items-center justify-center gap-2 w-full h-full 
@@ -93,9 +97,9 @@ export default function PostItem({post,type}){
                     </div>
                 </div>
                 <p className="flex-1 px-4">{post?.description}</p>
-                <div className="flex justify-between px-4 text-xs text-gray-500">
+                <div className="flex justify-between px-4 text-xs text-gray-500 px-4">
                     {post?.number_of_likes ? (
-                        <div className="flex items-center gap-2 px-4">
+                        <div className="flex items-center gap-2">
                             <AiFillLike className="text-blue-500 w-4 h-4"/> 
                             <span className="text-2xs">{post?.number_of_likes}</span>
                         </div>
@@ -104,7 +108,6 @@ export default function PostItem({post,type}){
                         xx comments
                     </div>
                 </div>
-
                 <div className="flex items-center justify-around border-t border-gray-300">
                     <div onClick={handleLikePost} 
                         className="flex items-center justify-center gap-2 w-full h-full hover:bg-gray-100 text-center cursor-pointer text-xs p-4">
