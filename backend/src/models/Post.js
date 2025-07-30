@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 import User from './User.js';
+import Comment from "./Comment.js"
 
 const postSchema = new mongoose.Schema(
     {
@@ -31,7 +32,7 @@ const postSchema = new mongoose.Schema(
 
 postSchema.methods.toResource = async function() {
     const user = await User.findById(this.user_id);
-    // add comments model 
+    const comments = await Comment.find({post_id:this._id});
     return {
         id: this._id,
         posted_by: user?.name,
@@ -39,8 +40,8 @@ postSchema.methods.toResource = async function() {
         description: this.description,
         likes: this.likes,
         number_of_likes: this.likes.length,
+        number_of_comments: comments.length,
         posted_at: this.createdAt
-        // add number of comments
     }
 }
 

@@ -64,9 +64,11 @@ export default function PostItem({post,type}){
                             <span className="text-2xs">{post?.number_of_likes}</span>
                         </div>
                     ) : ""}
-                    <div className="ml-auto">
-                        xx comments
-                    </div>
+                    {post?.number_of_comments > 0 ? (
+                        <div className="ml-auto">
+                            {post?.number_of_comments} comments
+                        </div>
+                    ) : ""}
                 </div>
                 <div className="flex items-center justify-around border-t border-b  border-gray-300">
                     <div onClick={handleLikePost}
@@ -104,9 +106,11 @@ export default function PostItem({post,type}){
                             <span className="text-2xs">{post?.number_of_likes}</span>
                         </div>
                     ) : ""}
-                    <div className="ml-auto">
-                        xx comments
-                    </div>
+                    {post?.number_of_comments > 0 ? (
+                        <div className="ml-auto">
+                            {post?.number_of_comments} comments
+                        </div>
+                    ) : ""}
                 </div>
                 <div className="flex items-center justify-around border-t border-gray-300">
                     <div onClick={handleLikePost} 
