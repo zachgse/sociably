@@ -23,11 +23,13 @@ export async function createPost(req,res){
     if (!user) return res.status(401).json({message:"Unauthorized"});
 
     const {description,type} = req.body;
+    const imagePath = req.file ? req.file.path : null;
 
     const post = new Post({
         user_id: user.id,
         description,
-        type
+        type,
+        image: imagePath
     })
     
     await post.save();

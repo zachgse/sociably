@@ -77,4 +77,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 
+app.use('/uploads', express.static('uploads'));
+
 server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

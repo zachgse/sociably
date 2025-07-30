@@ -1,4 +1,4 @@
-import { useContext,useState } from "react";
+import { useContext,useState,useRef } from "react";
 //Icons
 import { IoClose } from "react-icons/io5";
 //Utils
@@ -22,11 +22,13 @@ function Home() {
 
     //post create variables
     const [postInput,setPostInput] = useState(null);
+    const [preview, setPreview] = useState(null);
+    const [file, setFile] = useState(null);
+    const fileInputRef = useRef();
     const [IsPostLoading,setIsPostLoading] = useState(false);
 
     const createPost = async (e) => {
         e.preventDefault();
-
         setIsPostLoading(true);
 
         setTimeout(async () => {
@@ -34,10 +36,15 @@ function Home() {
                 const formData = new FormData();
                 formData.append("description", postInput);
                 formData.append("type",action);
+                if (file) {
+                    formData.append("image", file);
+                }
                 const response = await api.post("/post/create", formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
                     withCredentials: true,
                 });
-
                 socket.emit('create_post', response.data.data);
             } catch (error) {
                 console.error(error);
@@ -45,6 +52,11 @@ function Home() {
                 setIsPostLoading(false);
                 setIsModalOpen(false);
                 setPostInput(null);
+                setPreview(null);
+                setFile(null);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = null;
+                }
             }
         }, 2000);
     }
@@ -86,7 +98,12 @@ function Home() {
                                     <>
                                         <PostModalCreate 
                                             postInput={postInput}
-                                            setPostInput={setPostInput}/>
+                                            setPostInput={setPostInput}
+                                            preview={preview}
+                                            setPreview={setPreview}
+                                            file={file}
+                                            setFile={setFile}
+                                            fileInputRef={fileInputRef}/>
                                     </>
                                 }
                             </div>

@@ -6,6 +6,7 @@
 **/coverage/
 **/logs/
 **/tmp/
+**/uploads
 
 # npm debug logs
 npm-debug.log*

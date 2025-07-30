@@ -61,11 +61,14 @@ export default function PostItem({post,type}){
                         </p>
                     </div>
                 </div>
-                {['post','photo'].includes(post.type) ? 
-                <div className="border border-gray-300 rounded-lg w-full h-auto p-4">
-                    {post?.description}
-                </div>
-                : ''}
+                {['post','photo'].includes(post.type) 
+                    ? <p className="flex-1 px-4">{post?.description}</p> : ''}
+                {post.image ? 
+                  <img 
+                    src={`${process.env.REACT_APP_BACKEND_URL}/${post.image}`} 
+                    alt="post" 
+                    className="w-[680px] object-cover rounded mx-auto"/>
+                    : ""}
                 <div className="flex justify-between px-4 text-xs text-gray-500 px-4">
                     {post?.number_of_likes ? (
                         <div className="flex items-center gap-2">
@@ -120,6 +123,12 @@ export default function PostItem({post,type}){
                 </div>
                 {['post','photo'].includes(post.type) 
                     ? <p className="flex-1 px-4">{post?.description}</p> : ''}
+                {post.image ? 
+                  <img 
+                    src={`${process.env.REACT_APP_BACKEND_URL}/${post.image}`} 
+                    alt="post" 
+                    className="w-[740px] object-cover rounded mx-auto"/>
+                    : ""}
                 <div className="flex justify-between px-4 text-xs text-gray-500 px-4">
                     {post?.number_of_likes ? (
                         <div className="flex items-center gap-2">
@@ -150,6 +159,4 @@ export default function PostItem({post,type}){
             </div>
         )
     }
-
-
 }

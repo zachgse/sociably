@@ -46,6 +46,7 @@ postSchema.methods.toResource = async function() {
         profile_picture: user?.picture,
         type: this.type,
         description: this.description,
+        image: this.image,
         likes: this.likes,
         number_of_likes: this.likes.length,
         number_of_comments: comments.length,

@@ -1,27 +1,49 @@
-import { useEffect,useContext,useState } from "react";
+import { useEffect,useContext,useState,useRef } from "react";
 import { FaImages } from "react-icons/fa"; 
 import api from "../../utils/api";
 import AuthContext from "../../utils/AuthContext";
 import ModalContext from "../../utils/ModalContext";
 
-export default function PostModalCreate({postInput,setPostInput}){
+export default function PostModalCreate({postInput,setPostInput,preview,setPreview,setFile,fileInputRef}){
     const [user] = useContext(AuthContext);
     const { action } = useContext(ModalContext);
     const [emojiArray,setEmojiArray] = useState([]);
 
     useEffect(() => {
-        const fetchEmoji = async () => {
-            try {
-                const response = await api.get('/emojis');
-                setEmojiArray(response.data.data);
-            } catch (error) {
-                console.error(error);
+        if (action == 'feeling'){
+            const fetchEmoji = async () => {
+                try {
+                    const response = await api.get('/emojis');
+                    setEmojiArray(response.data.data);
+                } catch (error) {
+                    console.error(error);
+                }
             }
+
+            fetchEmoji();
         }
 
-        fetchEmoji();
     },[]); 
-    
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+
+        if (selectedFile) {
+            const imageUrl = URL.createObjectURL(selectedFile);
+            setPreview(imageUrl);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setPreview(null);
+        setFile(null);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null;
+        }
+    };
+
     if (action == 'post' || action == 'photo'){
         return (
             <>
@@ -32,9 +54,23 @@ export default function PostModalCreate({postInput,setPostInput}){
                     rows="14"
                     placeholder="What's on your mind"
                 />
+                {preview && (
+                    <div className="relative mx-auto">
+                        <img
+                        src={preview}
+                        alt="Preview"
+                        className="w-48 h-48 object-cover border rounded"
+                        />
+                        <button className="absolute top-1 right-1 bg-white rounded-full px-2 py-1 text-xs shadow cursor-pointer" 
+                            onClick={handleRemoveImage}>
+                            ✕
+                        </button>
+                    </div>
+                )}
                 <div className="flex flex-1 items-center justify-center gap-1">
                     <FaImages className="h-6 w-6 text-green-500" />
-                    <p className="text-xs">Add Photo</p>
+                    <input type="file" accept="image/*" 
+                        onChange={handleFileChange} ref={fileInputRef}/>
                 </div>
             </>
         )
