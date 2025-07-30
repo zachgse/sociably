@@ -65,7 +65,6 @@ function Navbar() {
     return (
         <>
             <div className="w-full h-20 border-b border-gray-300">
-                {/* <div className="max-w-[1300px] h-full flex items-center px-8 mx-auto"> */}
                 <div className="h-full flex items-center px-8 mx-auto">
                     <div className="me-auto">
                         <Link to={{pathname:"/"}} 
@@ -74,9 +73,6 @@ function Navbar() {
                         </Link>
                     </div>
                     <div className="flex items-center gap-4">
-                        {/* <div>
-                            <Link to={{pathname: "/about"}}>About</Link>
-                        </div> */}
                         <div className="flex items-center gap-4">
                             <div><img className="rounded-full w-12 h-12" src={user?.picture}/></div>
                             {/* add dropdown here */}
