@@ -53,3 +53,20 @@ JWT AUTH
   > payload is the data (user object in my case)
   > signature that the token has not been tampered with
 3. To ensure that the token is not yet expireed/not tampered, create middleware to ensure it 
+
+
+
+DIFFERENCE BETWEEN EXPORT WITH DEFAULT AND WITHOUT
+1. export const test - this is called named export which is good for multiple export inside the same file 
+  > ex: 
+  export const test
+  import { test } from file
+2. export default const test - you can only export one in a single file 
+  > ex:
+  export default const test
+  import test from file
+3. you can combine both
+  > ex: 
+  export const test
+  export default try
+  import try, { test } from file

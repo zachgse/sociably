@@ -4,6 +4,7 @@ import "./css/style.css";
 import Layout from "./components/Layout";
 import RequireAuth from './utils/RequireAuth';
 import RequireGuest from './utils/RequireGuest';
+import { ModalProvider } from './utils/ModalContext';
 //pages
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -20,7 +21,9 @@ function App() {
                 <Layout/>
               </RequireAuth>
             }>
-            <Route index element={<Home/>}/>
+            {/* <ModalProvider> */}
+              <Route index element={<Home/>}/>
+            {/* </ModalProvider> */}
             <Route path="about" element={<About/>}/>
           </Route>
           {/*  */}

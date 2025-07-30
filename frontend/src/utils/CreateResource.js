@@ -1,3 +1,4 @@
+// remove this soon
 export function createResource(promise) {
     let status = 'pending';
     let result;

@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { Link,useNavigate } from "react-router-dom";
 import { googleLogout } from "@react-oauth/google";
 import swal  from "sweetalert2";
-import api from "../api/api";
+import api from "../utils/api";
 import AuthContext from "../utils/AuthContext";
 
 function Navbar() {
