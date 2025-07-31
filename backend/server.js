@@ -33,8 +33,6 @@ const io = new Server(server,{
 })
 
 io.on('connection', (socket) => {
-  console.log("A user connected: " + socket.id);
-
   socket.on('create_post', (data) => {
     io.emit('fetch_posts', data);
   });
@@ -79,4 +77,4 @@ app.use('/api/comment', commentRoutes);
 
 app.use('/uploads', express.static('uploads'));
 
-server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+server.listen(PORT);

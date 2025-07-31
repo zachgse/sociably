@@ -52,7 +52,6 @@ export async function viewPost(req,res){
 export async function likePost(req,res){
     const user = getUserFromToken(req);
     var message = null;
-    console.log("user: ", user);
 
     if (!user) return res.status(401).json({message:"Unauthorized"});
 
@@ -67,13 +66,11 @@ export async function likePost(req,res){
 
     if (isPostLiked){
         post.likes = post.likes.filter(like => !like.user_id.equals(user.id));
-        console.log("post has been unliked");
         message = "Post has been unliked";
     } else {
         post.likes.push({
             user_id: user.id
         });
-        console.log("post has been liked");
         message = "Post has been liked";
     }
 

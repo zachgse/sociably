@@ -42,8 +42,7 @@ function Home() {
                 const response = await api.post("/post/create", formData, {
                     headers: {
                         "Content-Type": "multipart/form-data",
-                    },
-                    withCredentials: true,
+                    }
                 });
                 socket.emit('create_post', response.data.data);
             } catch (error) {

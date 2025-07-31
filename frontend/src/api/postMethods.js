@@ -11,7 +11,7 @@ export const fetchAllPost = async() => {
 
 export const likePost = async({postId}) => {
     try {
-        const response = await api.put(`/post/${postId}`,{},{withCredentials:true});
+        const response = await api.put(`/post/${postId}`);
         return response.data.data;
     } catch (error){
         console.error(error);

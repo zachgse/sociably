@@ -5,15 +5,15 @@ import api from "../utils/api";
 import AuthContext from "../utils/AuthContext";
 
 function Login(){
-    const [user,setUser] = useContext(AuthContext);
+    const [user,setUser,accessToken,setAccessToken] = useContext(AuthContext);
     const navigate = useNavigate();
 
     async function handleLoginSuccess(credentialResponse) {
         try {
             const response = await api.post('/auth/auth', 
-                    {credential:credentialResponse.credential},
-                    {withCredentials:true});
+                    {credential:credentialResponse.credential});
             setUser(response.data.user);
+            setAccessToken(response.data.accessToken);
             navigate("/");
         } catch (error) {
             console.error(error); 

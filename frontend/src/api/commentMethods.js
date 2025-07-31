@@ -14,8 +14,7 @@ export const createComment = async({postId,content}) => {
       const response = await api.post(`/comment/${postId}`,
           {
             content
-          },
-          {withCredentials:true}
+          }
       )
       return response.data.data;
     } catch (error){
@@ -25,7 +24,7 @@ export const createComment = async({postId,content}) => {
 
 export const likeComment = async({commentId}) => {
     try {
-        const response = await api.post(`comment/like/${commentId}`,{},{withCredentials:true});
+        const response = await api.post(`comment/like/${commentId}`);
         return response.data.data;
     } catch (error) {
         console.error(error);

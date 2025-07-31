@@ -6,7 +6,7 @@ import api from "../utils/api";
 import AuthContext from "../utils/AuthContext";
 
 function Navbar() {
-    const [user,setUser] = useContext(AuthContext);
+    const [user,setUser,setAccessToken] = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -53,6 +53,7 @@ function Navbar() {
                     });
                     googleLogout();
                     setUser(null);
+                    setAccessToken(null);
                 } catch (error){
                     console.error(error);
                 } finally {
